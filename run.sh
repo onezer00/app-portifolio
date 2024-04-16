@@ -7,6 +7,13 @@ IMAGE_NAME="minha-aplicacao-fastapi"
 
 # Função para atualizar o repositório Git
 update_repository() {
+    echo "Checando por mudanças locais não comitadas..."
+    if ! git diff --quiet || ! git diff --staged --quiet; then
+        echo "Mudanças locais detectadas! Resetando o repositório..."
+        git reset --hard HEAD
+        git clean -fd
+    fi
+    
     echo "Atualizando repositório..."
     git pull origin main
     echo "Repositório atualizado."
