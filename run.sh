@@ -5,6 +5,16 @@ CONTAINER_NAME="minha-aplicacao-fastapi"
 # Nome da imagem Docker
 IMAGE_NAME="minha-aplicacao-fastapi"
 
+# Função para criar um arquivo de log
+create_log_file() {
+    # Cria um arquivo de log com a data e hora atual
+    LOG_FILE="logs/hangman_game.log"
+    touch ${LOG_FILE}
+    echo "Dando permissões de escrita e leitura ao arquivo de log..."
+    chmod 666 ${LOG_FILE}
+    echo "Arquivo de log criado: ${LOG_FILE}"
+}
+
 # Função para atualizar o repositório Git
 update_repository() {
     echo "Atualizando repositório..."
@@ -59,6 +69,7 @@ else
 fi
 
 # Checa se o container já está rodando e atualiza se necessário
+create_log_file
 stop_and_remove_container
 build_image
 run_container_and_follow_logs
