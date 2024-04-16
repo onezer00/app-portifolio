@@ -32,11 +32,11 @@ build_image() {
     echo "Imagem construída."
 }
 
-# Função para rodar o container
-run_container() {
+# Função para rodar o container e acompanhar os logs
+run_container_and_follow_logs() {
     echo "Levantando o novo container..."
-    docker run -d -p 8000:8000 --name ${CONTAINER_NAME} ${IMAGE_NAME}
-    echo "Container rodando."
+    docker run -p 8000:8000 --name ${CONTAINER_NAME} ${IMAGE_NAME}
+    # O comando acima irá manter o container em primeiro plano e mostrar os logs diretamente
 }
 
 # Verifica se o diretório atual é um repositório Git
@@ -50,6 +50,6 @@ fi
 # Checa se o container já está rodando e atualiza se necessário
 stop_and_remove_container
 build_image
-run_container
+run_container_and_follow_logs
 
 echo "Script concluído."
