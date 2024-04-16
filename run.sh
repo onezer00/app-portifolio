@@ -7,15 +7,19 @@ IMAGE_NAME="minha-aplicacao-fastapi"
 
 # Função para atualizar o repositório Git
 update_repository() {
-    echo "Checando por mudanças locais não comitadas..."
-    if ! git diff --quiet || ! git diff --staged --quiet; then
-        echo "Mudanças locais detectadas! Resetando o repositório..."
-        git reset --hard HEAD
-        git clean -fd
-    fi
-    
     echo "Atualizando repositório..."
+    # Stash quaisquer mudanças que o script possa ter causado
+    git stash --include-untracked
+    # Puxe as últimas mudanças do repositório
     git pull origin main
+    # Aplica o stash, mas não restaure o arquivo de script (run_container.sh)
+    git stash apply --exclude=run_container.sh
+    # Verifica se o script atual foi modificado após o git pull
+    if [ -n "$(git diff --name-only HEAD@{1} run_container.sh)" ]; then
+        echo "O script foi atualizado... Reiniciando o script."
+        exec $0
+        exit
+    fi
     echo "Repositório atualizado."
 }
 
