@@ -1,20 +1,36 @@
-from typing import Union
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from datetime import datetime
+import json
 
-from models.item_model import Item
+from fastapi.responses import JSONResponse
+
+from app.models.forca_model import Guess
+from app.game_forca.game import GameForca
 
 app = FastAPI()
+game = GameForca()
 
 @app.get("/")
 def read_root():
     return {"API Name": "FastAPI", "Time": datetime.now(), "Status": "Running"}
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+@app.post("/guess")
+def make_guess(guess: Guess):
+    if game.chances <= 0 or not game.palavra:
+        game.end_game()
+        content = {"message": "Sorry, you dont won! Try again.", "status": "The game not started", "action": "Try access '/start' to start the game"}
+        return JSONResponse(status_code=404, content=content)
+    
+    result = game.input_letra(guess.letter.upper())
+    
+    if "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
+    
+    if '_' not in game.lista:
+        result.update({"message": "Congratulations, you won!", "status": "won"})
+        game.end_game()
+    return result
 
-
-@app.put("/items/{item_id}")
-def update_item(item_id: int, item: Item):
-    return {"item_name": item.name, "item_id": item_id}
+@app.get("/start")
+def start_game():
+    return game.start_game()
