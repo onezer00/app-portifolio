@@ -4,8 +4,8 @@ import json
 
 from fastapi.responses import JSONResponse
 
-from app.models.forca_model import Guess
-from app.game_forca.game import GameForca
+from models.forca_model import Guess
+from game_forca.game import GameForca
 
 app = FastAPI()
 game = GameForca()
