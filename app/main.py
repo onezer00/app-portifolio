@@ -10,11 +10,11 @@ from game_forca.game import GameForca
 app = FastAPI()
 game = GameForca()
 
-@app.get("/")
+@app.get("/", tags=["Health Check"])
 def read_root():
     return {"API Name": "FastAPI", "Time": datetime.now(), "Status": "Running"}
 
-@app.post("/guess")
+@app.post("/guess", tags=["Game Forca"])
 def make_guess(guess: Guess):
     if game.chances <= 0 or not game.palavra:
         game.end_game()
@@ -31,6 +31,6 @@ def make_guess(guess: Guess):
         game.end_game()
     return result
 
-@app.get("/start")
+@app.get("/start", tags=["Game Forca"])
 def start_game():
     return game.start_game()
