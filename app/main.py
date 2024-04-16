@@ -1,14 +1,37 @@
-from fastapi import FastAPI, HTTPException
+from pathlib import Path
+from fastapi import FastAPI, HTTPException, Request
 from datetime import datetime
 import json
 
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 
 from models.forca_model import Guess
 from game_forca.game import GameForca
+from utils.logger import logger
 
 app = FastAPI()
 game = GameForca()
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    id = datetime.now().timestamp()
+    logger.info(f"req_id={id} start request path={request.url.path}")
+    response = await call_next(request)
+    logger.info(f"req_id={id} completed request path={request.url.path} status_code={response.status_code}")
+    return response
+
+# TODO: Adicionar autenticação para esta rota.
+@app.get("/logs", tags=["Logs"])
+def get_logs():
+    log_file = Path('logs/hangman_game.log')
+    if not log_file.exists():
+        return JSONResponse(status_code=404, content={"message": "Log file not found"})
+    def log_streamer():
+        log_file_path = Path('logs/hangman_game.log')
+        with log_file_path.open(mode='rb') as log_file:
+            yield from log_file
+            
+    return StreamingResponse(log_streamer(), media_type='text/plain')
 
 @app.get("/", tags=["Health Check"])
 def read_root():
