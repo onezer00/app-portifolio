@@ -14,11 +14,14 @@ update_repository() {
 
 # Função para parar e remover o container, se ele estiver rodando
 stop_and_remove_container() {
-    if [ "$(docker ps -q -f name=${CONTAINER_NAME})" ]; then
+    # Checa se o container existe
+    if [ "$(docker ps -aq -f name=${CONTAINER_NAME})" ]; then
         echo "Parando e removendo o container existente..."
-        docker stop ${CONTAINER_NAME}
-        docker rm ${CONTAINER_NAME}
+        # Força a remoção do container, mesmo que esteja rodando
+        docker rm -f ${CONTAINER_NAME}
         echo "Container removido."
+    else
+        echo "Nenhum container existente para remover."
     fi
 }
 
