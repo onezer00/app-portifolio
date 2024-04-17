@@ -1,15 +1,29 @@
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, Request
-from datetime import datetime
-import json
-
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
+
+from datetime import datetime
 
 from models.forca_model import Guess
 from game_forca.game import GameForca
 from utils.logger import logger
 
 app = FastAPI()
+
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 game = GameForca()
 
 @app.middleware("http")
